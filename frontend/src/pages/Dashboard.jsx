@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
+import { api } from '../api'
 import './Dashboard.css'
 
 const METRICS = [
@@ -53,7 +54,7 @@ export default function Dashboard() {
     setError('')
 
     try {
-      const resp = await fetch('/api/handle', { method: 'POST' })
+      const resp = await api('/handle', { method: 'POST' })
       if (!resp.ok) {
         const body = await resp.text()
         throw new Error(body || `Server error ${resp.status}`)

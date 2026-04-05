@@ -9,6 +9,7 @@ _this_dir = os.path.dirname(os.path.abspath(__file__))
 load_dotenv(os.path.join(_this_dir, ".env"))
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from routes import pipeline
 from agents.orchestrator import run_pipeline
@@ -18,6 +19,19 @@ from insforge_client import list_rows
 logging.basicConfig(level=logging.INFO, format="%(levelname)s | %(message)s")
 
 app = FastAPI(title="Jachacks-2026")
+
+# CORS — allow frontend origins (dev + prod)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        os.getenv("FRONTEND_URL", ""),  # set to your Vercel URL in prod
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/")
 def read_root():

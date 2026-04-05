@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import { useEffect, useState, useMemo } from 'react'
 import { Chart as ChartJS, LinearScale, PointElement, Tooltip, Legend } from 'chart.js'
 import { Scatter } from 'react-chartjs-2'
+import { api } from '../api'
 import './Analytics.css'
 
 ChartJS.register(LinearScale, PointElement, Tooltip, Legend)
@@ -58,7 +59,7 @@ export default function Analytics() {
     setLoading(true)
     setError('')
     try {
-      const resp = await fetch('/api/employees')
+      const resp = await api('/employees')
       if (!resp.ok) throw new Error(`Error ${resp.status}`)
       const data = await resp.json()
       setEmployees(data)
@@ -122,7 +123,7 @@ export default function Analytics() {
   async function handleSummarize(emp) {
     setSummarizing(emp.id)
     try {
-      const resp = await fetch(`/api/summarize/${emp.id}`, { method: 'POST' })
+      const resp = await api(`/summarize/${emp.id}`, { method: 'POST' })
       if (!resp.ok) {
         const err = await resp.json().catch(() => ({}))
         throw new Error(err.error || `Error ${resp.status}`)

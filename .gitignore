@@ -5,3 +5,5 @@ storage/
 .venv/
 backend/.env
 node_modules
+.vite/
+dist/
