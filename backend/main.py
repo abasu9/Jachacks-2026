@@ -1,5 +1,19 @@
+import logging
+import os
+import traceback
+
+from dotenv import load_dotenv
+
+# Ensure .env is loaded from the same directory as this file (backend/)
+_this_dir = os.path.dirname(os.path.abspath(__file__))
+load_dotenv(os.path.join(_this_dir, ".env"))
+
 from fastapi import FastAPI
-from routes import user
+from fastapi.responses import JSONResponse
+from routes import pipeline
+from agents.orchestrator import run_pipeline
+
+logging.basicConfig(level=logging.INFO, format="%(levelname)s | %(message)s")
 
 app = FastAPI(title="Jachacks-2026")
 
@@ -7,4 +21,23 @@ app = FastAPI(title="Jachacks-2026")
 def read_root():
     return {"message": "Welcome to Jachacks-2026 API"}
 
-app.include_router(user.router, prefix="/users", tags=["users"])
+
+@app.post("/handle")
+def handle():
+    """
+    Trigger the full agentic pipeline:
+    Fetches all employees, processes each one-by-one through
+    Data → Math → GitHub+AI → Update agents, waiting for each
+    DB write to succeed before moving to the next employee.
+    Returns a success summary when all are done.
+    """
+    try:
+        result = run_pipeline()
+        return result
+    except Exception as exc:
+        tb = traceback.format_exc()
+        logging.error("Pipeline error:\n%s", tb)
+        return JSONResponse(status_code=500, content={"error": str(exc), "traceback": tb})
+
+
+app.include_router(pipeline.router, prefix="/pipeline", tags=["pipeline"])
